@@ -3,7 +3,6 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 
-
 dotenv.config();
 
 const app = express();
@@ -11,20 +10,32 @@ const app = express();
 const PORT = process.env.PORT;
 
 // Create the connection to database
-const connection = await mysql.createConnection({
+const connection = await mysql.createPool({
     host: process.env.host,
     user: process.env.user,
     database: process.env.database,
     password: process.env.password,
     port: process.env.portDatabase,
+    waitForConnections: true,
 });
 
-app.use(cors())
+app.use(cors());
 
 app.get("/", async (req, res) => {
     res.json({
         tables: "/query=SHOW TABLES",
         runQuery: "/query=<query>",
+    });
+});
+
+process.on("SIGINT", () => {
+    connection.end((err) => {
+        if (err) {
+            console.error("Error ending connection pool:", err);
+            process.exit(1);
+        }
+        console.log("Connection pool closed");
+        process.exit(0);
     });
 });
 
