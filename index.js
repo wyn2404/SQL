@@ -18,8 +18,11 @@ const connection = await mysql.createPool({
     port: process.env.portDatabase,
     waitForConnections: true,
 });
-
-app.use(cors());
+const corsOptions ={
+    origin:'*', 
+    optionSuccessStatus:200,
+ }
+app.use(cors(corsOptions));
 
 app.get("/", async (req, res) => {
     res.json({
